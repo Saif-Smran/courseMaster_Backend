@@ -1,0 +1,395 @@
+{
+  "info": {
+    "_postman_id": "a5d0f12d-6dc6-4a88-a91c-4e79b6c66d31",
+    "name": "CourseMaster Backend API",
+    "description": "Postman collection for the CourseMaster Express API. Run Login as Admin or Login as Student first; the response token is saved automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "courseId", "value": "REPLACE_WITH_COURSE_ID" },
+    { "key": "batchId", "value": "REPLACE_WITH_BATCH_ID" },
+    { "key": "enrollmentId", "value": "REPLACE_WITH_ENROLLMENT_ID" },
+    { "key": "lessonId", "value": "REPLACE_WITH_LESSON_ID" },
+    { "key": "submissionId", "value": "REPLACE_WITH_ASSIGNMENT_SUBMISSION_ID" },
+    { "key": "userId", "value": "REPLACE_WITH_USER_ID" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Student\",\n  \"email\": \"new.student@example.com\",\n  \"password\": \"student123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "response": []
+        },
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Admin\",\n  \"email\": \"new.admin@example.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\",\n  \"adminKey\": \"Hosain\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Student",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.token) pm.collectionVariables.set('token', json.token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@coursemaster.com\",\n  \"password\": \"student123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Admin",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.token) pm.collectionVariables.set('token', json.token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@coursemaster.com\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?page=1&limit=8&search=&category=&tags=&sort=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "8" },
+                { "key": "search", "value": "" },
+                { "key": "category", "value": "" },
+                { "key": "tags", "value": "" },
+                { "key": "sort", "value": "", "description": "Use price_asc or price_desc" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/courses/{{courseId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "Enroll in Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchId\": \"{{batchId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/enrollments/{{courseId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/enrollments/my" },
+          "response": []
+        },
+        {
+          "name": "Complete Lesson",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lessonId\": \"{{lessonId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/enrollments/{{enrollmentId}}/complete-lesson"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Assignments",
+      "item": [
+        {
+          "name": "Submit Assignment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"answerType\": \"text\",\n  \"answer\": \"My assignment answer\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/assignments/submit"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Assignment Submissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/assignments/my?courseId={{courseId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assignment Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/assignments/stats?courseId={{courseId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "item": [
+        {
+          "name": "Submit Quiz",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"answers\": [0, 1]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/quizzes/submit"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Quiz Submissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/quizzes/my?courseId={{courseId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quiz Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/quizzes/stats?courseId={{courseId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Courses",
+      "item": [
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Node.js API Development\",\n  \"description\": \"Build APIs with Express and MongoDB.\",\n  \"instructorName\": \"CourseMaster Team\",\n  \"price\": 99,\n  \"category\": \"Backend\",\n  \"tags\": [\"nodejs\", \"express\", \"mongodb\"],\n  \"syllabus\": [\n    {\n      \"title\": \"Getting Started\",\n      \"lessons\": [\n        {\n          \"title\": \"Introduction\",\n          \"videoUrl\": \"https://example.com/video\",\n          \"liveClassLink\": \"https://meet.google.com/example\",\n          \"assignmentPrompt\": \"Create a hello world API\",\n          \"quiz\": [\n            { \"question\": \"Which runtime does Express use?\", \"options\": [\"Node.js\", \"PHP\"], \"correctIndex\": 0 }\n          ]\n        }\n      ]\n    }\n  ],\n  \"batches\": [\n    { \"name\": \"Batch 1\", \"startDate\": \"2026-11-01T00:00:00.000Z\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/courses"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 79,\n  \"description\": \"Updated course description\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/courses/{{courseId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Course",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/admin/courses/{{courseId}}" },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Management",
+      "item": [
+        {
+          "name": "List Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/enrollments?courseId={{courseId}}&batchId={{batchId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "List Assignment Submissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/assignments?courseId={{courseId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Review Assignment",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"reviewed\",\n  \"grade\": 95,\n  \"reviewNotes\": \"Good work\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/assignments/{{submissionId}}/review"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Analytics",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/admin/analytics" },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/users" },
+          "response": []
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"student\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}/role"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Ban",
+          "request": { "method": "PATCH", "header": [], "url": "{{baseUrl}}/api/users/{{userId}}/ban" },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/users/{{userId}}" },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
