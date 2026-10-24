@@ -27,12 +27,24 @@ connectDB().catch((err) => {
 
 const app = express();
 
-app.use(cors());
-// Code-10 bug: custom header restricts allowed methods to GET and POST, breaking PUT/DELETE CORS preflights
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Methods", "GET, POST");
-  next();
-});
+const allowedOrigins = new Set([
+  process.env.FRONTEND_URL || "http://localhost:5173",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests such as local health checks.
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS origin not allowed"));
+  },
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
 
 // Middleware to ensure DB connection before handling requests

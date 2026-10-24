@@ -3,16 +3,17 @@ services:
     image: mongo:8
     container_name: coursemaster
     restart: unless-stopped
-
+    command: ["mongod", "--bind_ip_all", "--noauth"]
     ports:
       - "27017:27017"
-
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: StrongPassword123!
-
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
 volumes:
   mongodb_data:
